@@ -474,6 +474,30 @@ with st.sidebar:
     fig_width  = st.number_input("Width (inches)",  min_value=2.0, max_value=20.0, value=float(default_w), step=0.1)
     fig_height = st.number_input("Height (inches)", min_value=2.0, max_value=20.0, value=float(default_h), step=0.1)
 
+    st.markdown("---")
+    st.markdown("""
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:0.68rem; letter-spacing:0.15em;
+         text-transform:uppercase; color:#64748b; margin-bottom:10px;">
+    🔲 Axis controls
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.expander("X axis", expanded=False):
+        x_scale   = st.selectbox("Scale", ["linear", "log"], index=0, key="x_scale")
+        x_auto    = st.checkbox("Auto range", value=True, key="x_auto")
+        x_min     = st.number_input("X min", value=0.0, step=1.0, key="x_min", disabled=x_auto)
+        x_max     = st.number_input("X max", value=100.0, step=1.0, key="x_max", disabled=x_auto)
+        x_dtick   = st.number_input("Tick interval (0 = auto)", value=0.0, step=1.0, key="x_dtick",
+                                     help="e.g. 24 to show ticks every 24 h")
+
+    with st.expander("Y axis", expanded=False):
+        y_scale   = st.selectbox("Scale", ["linear", "log"], index=0, key="y_scale")
+        y_auto    = st.checkbox("Auto range", value=True, key="y_auto")
+        y_min     = st.number_input("Y min", value=0.0, step=1.0, key="y_min", disabled=y_auto)
+        y_max     = st.number_input("Y max", value=100.0, step=1.0, key="y_max", disabled=y_auto)
+        y_dtick   = st.number_input("Tick interval (0 = auto)", value=0.0, step=1.0, key="y_dtick",
+                                     help="e.g. 20 to show ticks every 20 %")
+
 
 # ─────────────────────────────────────────────
 #  Data input
@@ -555,6 +579,28 @@ if tidy is not None and not tidy.empty:
         "display_name": [name_map[g] for g in groups],
         "color": [color_map[g] for g in groups],
     })
+
+    # ── Axis settings ──
+    xaxis_extra = dict(type=x_scale)
+    if not x_auto:
+        xaxis_extra["range"] = [x_min, x_max]
+    if x_dtick > 0:
+        xaxis_extra["dtick"] = x_dtick
+        xaxis_extra["tick0"] = 0
+
+    yaxis_extra = dict(type=y_scale)
+    if not y_auto:
+        yaxis_extra["range"] = [y_min, y_max]
+    if y_dtick > 0:
+        yaxis_extra["dtick"] = y_dtick
+        yaxis_extra["tick0"] = 0
+
+    # ── Kaleido check (once) ──
+    try:
+        import kaleido  # noqa
+        _kaleido_ok = True
+    except ImportError:
+        _kaleido_ok = False
 
     stats = aggregate_stats(tidy, interval_hours=interval_hours)
     stats = stats.merge(group_df, on="group", how="left", validate="many_to_one")
@@ -651,48 +697,63 @@ if tidy is not None and not tidy.empty:
             yaxis_title=y_label,
             title=dict(text=f"Mean{error_label} per group", font=dict(size=14, color="#475569"), x=0),
             legend_title_text="Group",
+            width=int(fig_width * 96),
+            height=int(fig_height * 96),
         )
+        fig.update_xaxes(**xaxis_extra)
+        fig.update_yaxes(**yaxis_extra)
         st.plotly_chart(fig, use_container_width=True)
 
-        # Download row
+        # ── Export ──────────────────────────────────────────────
         fmt = export_format.lower()
-        if fmt == "tiff":
-            fmt = "tif"
+        if fmt == "tiff": fmt = "tif"
         is_vector = fmt in ("pdf", "svg")
         label_dpi = "vector" if is_vector else f"{export_dpi} dpi"
 
-        dc1, dc2, dc3, dc4 = st.columns(4)
-        try:
+        if not _kaleido_ok:
+            st.warning("⚠️ **Static export unavailable** — `kaleido` is not installed. "
+                       "Add `kaleido>=0.2.1` to your `requirements.txt` and redeploy, "
+                       "or run `pip install kaleido` locally.")
+        else:
+            # Primary export — exactly what the user chose in the sidebar
+            st.markdown("""
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;
+                 letter-spacing:0.1em;text-transform:uppercase;color:#64748b;
+                 margin:12px 0 6px;">⬇ Export mean plot</div>
+            """, unsafe_allow_html=True)
+            dc1, dc2, dc3, dc4 = st.columns(4)
             with dc1:
                 st.download_button(
-                    f"⬇ {export_format} ({label_dpi})",
+                    f"✦ {export_format}  ·  {label_dpi}",
                     data=save_figure_bytes(fig, fmt, dpi=export_dpi),
-                    file_name=f"mean_plot.{fmt}",
+                    file_name=f"mean_plot_{export_dpi}dpi.{fmt}",
                     mime=get_download_mime(fmt),
+                    use_container_width=True,
                 )
             with dc2:
                 st.download_button(
-                    "⬇ PNG 300 dpi",
+                    "PNG · 300 dpi",
                     data=save_figure_bytes(fig, "png", dpi=300),
                     file_name="mean_plot_300dpi.png",
                     mime="image/png",
+                    use_container_width=True,
                 )
             with dc3:
                 st.download_button(
-                    "⬇ PNG 600 dpi",
+                    "PNG · 600 dpi",
                     data=save_figure_bytes(fig, "png", dpi=600),
                     file_name="mean_plot_600dpi.png",
                     mime="image/png",
+                    use_container_width=True,
                 )
             with dc4:
                 st.download_button(
-                    "⬇ PDF (vector)",
+                    "PDF · vector",
                     data=save_figure_bytes(fig, "pdf", dpi=export_dpi),
                     file_name="mean_plot.pdf",
                     mime="application/pdf",
+                    use_container_width=True,
                 )
-        except Exception:
-            pass
     # ─── TAB 2: Spaghetti ─────────────────────────────────────
     with tab2:
         fig2 = go.Figure()
@@ -723,25 +784,52 @@ if tidy is not None and not tidy.empty:
             yaxis_title=y_label,
             title=dict(text="Individual replicates (spaghetti)", font=dict(size=14, color="#475569"), x=0),
             legend_title_text="Group",
+            width=int(fig_width * 96),
+            height=int(fig_height * 96),
         )
+        fig2.update_xaxes(**xaxis_extra)
+        fig2.update_yaxes(**yaxis_extra)
         st.plotly_chart(fig2, use_container_width=True)
 
-        try:
-            dc1, dc2, dc3 = st.columns(3)
+        if _kaleido_ok:
+            st.markdown("""
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;
+                 letter-spacing:0.1em;text-transform:uppercase;color:#64748b;
+                 margin:12px 0 6px;">⬇ Export spaghetti plot</div>
+            """, unsafe_allow_html=True)
+            dc1, dc2, dc3, dc4 = st.columns(4)
             with dc1:
-                st.download_button("⬇ PNG 300 dpi",
-                    data=save_figure_bytes(fig2, "png", dpi=300),
-                    file_name="spaghetti_300dpi.png", mime="image/png")
+                st.download_button(
+                    f"✦ {export_format}  ·  {label_dpi}",
+                    data=save_figure_bytes(fig2, fmt, dpi=export_dpi),
+                    file_name=f"spaghetti_{export_dpi}dpi.{fmt}",
+                    mime=get_download_mime(fmt),
+                    use_container_width=True,
+                )
             with dc2:
-                st.download_button("⬇ PNG 600 dpi",
-                    data=save_figure_bytes(fig2, "png", dpi=600),
-                    file_name="spaghetti_600dpi.png", mime="image/png")
+                st.download_button(
+                    "PNG · 300 dpi",
+                    data=save_figure_bytes(fig2, "png", dpi=300),
+                    file_name="spaghetti_300dpi.png",
+                    mime="image/png",
+                    use_container_width=True,
+                )
             with dc3:
-                st.download_button("⬇ SVG (vector)",
+                st.download_button(
+                    "PNG · 600 dpi",
+                    data=save_figure_bytes(fig2, "png", dpi=600),
+                    file_name="spaghetti_600dpi.png",
+                    mime="image/png",
+                    use_container_width=True,
+                )
+            with dc4:
+                st.download_button(
+                    "SVG · vector",
                     data=save_figure_bytes(fig2, "svg", dpi=export_dpi),
-                    file_name="spaghetti.svg", mime="image/svg+xml")
-        except Exception:
-            pass
+                    file_name="spaghetti.svg",
+                    mime="image/svg+xml",
+                    use_container_width=True,
+                )
 
     # ─── TAB 3: Raw data ──────────────────────────────────────
     with tab3:
