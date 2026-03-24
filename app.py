@@ -1,7 +1,7 @@
 """
 Incucyte Timecourse Plotter  —  Professional Edition
 =====================================================
-Redesigned for a publication-grade, dark-lab aesthetic.
+Publication-grade, clean light theme.
 Uses Plotly for interactive figures + Streamlit wide layout.
 """
 
@@ -36,76 +36,57 @@ st.markdown(
         font-family: 'IBM Plex Sans', sans-serif;
     }
 
-    .stApp {
-        background: #0b0f1a;
-        color: #d6dbe8;
-    }
-
-    /* ── Sidebar ─────────────────────────── */
-    [data-testid="stSidebar"] {
-        background: #111827;
-        border-right: 1px solid #1e2a3a;
-    }
-    [data-testid="stSidebar"] * {
-        color: #c8d0e0 !important;
-    }
+    /* ── Sidebar labels ──────────────────── */
     [data-testid="stSidebar"] .stTextInput > label,
     [data-testid="stSidebar"] .stSelectbox > label,
     [data-testid="stSidebar"] .stSlider > label,
     [data-testid="stSidebar"] .stNumberInput > label,
     [data-testid="stSidebar"] .stCheckbox > label {
-        font-size: 0.78rem !important;
-        letter-spacing: 0.06em;
+        font-size: 0.75rem !important;
+        letter-spacing: 0.07em;
         text-transform: uppercase;
-        color: #5a7a9e !important;
         font-family: 'IBM Plex Mono', monospace !important;
+        opacity: 0.65;
     }
 
-    /* ── Inputs ──────────────────────────── */
-    input, textarea, select {
-        background: #151d2e !important;
-        border: 1px solid #1e3a5f !important;
-        border-radius: 4px !important;
-        color: #d6dbe8 !important;
-    }
-
-    /* ── Cards / Metric containers ───────── */
+    /* ── Metric cards ────────────────────── */
     .metric-card {
-        background: linear-gradient(135deg, #111827 60%, #0e1e30);
-        border: 1px solid #1e3a5f;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-top: 3px solid #0ea5e9;
         border-radius: 8px;
         padding: 18px 22px;
         text-align: center;
     }
     .metric-label {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.68rem;
-        letter-spacing: 0.12em;
+        font-size: 0.66rem;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: #3b7bbf;
+        color: #64748b;
         margin-bottom: 6px;
     }
     .metric-value {
         font-family: 'IBM Plex Mono', monospace;
         font-size: 1.9rem;
         font-weight: 500;
-        color: #00c9a7;
+        color: #0ea5e9;
         line-height: 1;
     }
     .metric-sub {
         font-size: 0.72rem;
-        color: #4a607a;
+        color: #94a3b8;
         margin-top: 4px;
     }
 
     /* ── Section headers ─────────────────── */
     .section-header {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         letter-spacing: 0.15em;
         text-transform: uppercase;
-        color: #3b7bbf;
-        border-bottom: 1px solid #1a2a40;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
         padding-bottom: 6px;
         margin: 28px 0 16px;
     }
@@ -113,87 +94,76 @@ st.markdown(
     /* ── Hero / Title ────────────────────── */
     .hero-title {
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 2rem;
+        font-size: 1.9rem;
         font-weight: 500;
-        color: #e8edf5;
+        color: #0f172a;
         letter-spacing: -0.02em;
         line-height: 1.1;
     }
     .hero-accent {
-        color: #00c9a7;
+        color: #0ea5e9;
     }
     .hero-sub {
-        font-size: 0.88rem;
-        color: #4a607a;
-        margin-top: 4px;
-        letter-spacing: 0.03em;
+        font-size: 0.86rem;
+        color: #64748b;
+        margin-top: 5px;
+        letter-spacing: 0.02em;
     }
 
     /* ── Pill badges ─────────────────────── */
     .badge {
         display: inline-block;
-        background: #0e1e30;
-        border: 1px solid #1e3a5f;
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
         border-radius: 20px;
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.7rem;
-        color: #3b7bbf;
+        font-size: 0.68rem;
+        color: #0284c7;
         padding: 3px 10px;
-        margin-right: 6px;
-        letter-spacing: 0.06em;
+        margin-right: 5px;
+        letter-spacing: 0.05em;
     }
 
     /* ── Tabs ────────────────────────────── */
     [data-testid="stTabs"] button {
         font-family: 'IBM Plex Mono', monospace !important;
-        font-size: 0.78rem !important;
+        font-size: 0.76rem !important;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #4a607a !important;
         border-radius: 0 !important;
-        border-bottom: 2px solid transparent !important;
     }
     [data-testid="stTabs"] button[aria-selected="true"] {
-        color: #00c9a7 !important;
-        border-bottom: 2px solid #00c9a7 !important;
-        background: transparent !important;
-    }
-
-    /* ── Info/warn boxes ─────────────────── */
-    .stAlert {
-        background: #0e1e30 !important;
-        border: 1px solid #1e3a5f !important;
-        border-radius: 6px !important;
+        color: #0ea5e9 !important;
+        border-bottom: 2px solid #0ea5e9 !important;
     }
 
     /* ── Download buttons ─────────────────  */
     .stDownloadButton > button {
-        background: #0e1e30 !important;
-        border: 1px solid #1e3a5f !important;
-        color: #00c9a7 !important;
+        background: #f0f9ff !important;
+        border: 1px solid #bae6fd !important;
+        color: #0284c7 !important;
         font-family: 'IBM Plex Mono', monospace !important;
         font-size: 0.72rem !important;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.05em;
         border-radius: 5px !important;
-        transition: all 0.2s;
+        transition: all 0.18s;
     }
     .stDownloadButton > button:hover {
-        background: #1a3050 !important;
-        border-color: #00c9a7 !important;
+        background: #0ea5e9 !important;
+        border-color: #0ea5e9 !important;
         color: #fff !important;
     }
 
-    /* ── Dataframe ───────────────────────── */
-    [data-testid="stDataFrame"] {
-        border: 1px solid #1e3a5f !important;
-        border-radius: 6px !important;
-    }
-
-    /* ── File uploader ───────────────────── */
-    [data-testid="stFileUploader"] {
-        background: #0e1a28 !important;
-        border: 1.5px dashed #1e3a5f !important;
-        border-radius: 8px !important;
+    /* ── Sidebar divider label ───────────── */
+    .sidebar-section {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 5px;
+        margin-bottom: 12px;
     }
     </style>
     """,
@@ -354,39 +324,53 @@ def make_color_list(n: int):
 # ─────────────────────────────────────────────
 PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="#0d1422",
-    font=dict(family="IBM Plex Sans, sans-serif", color="#c8d0e0", size=13),
+    plot_bgcolor="#f8fafc",
+    font=dict(family="IBM Plex Sans, sans-serif", color="#1e293b", size=13),
     xaxis=dict(
-        gridcolor="#1a2a40", gridwidth=1,
-        linecolor="#1e3a5f", tickcolor="#1e3a5f",
-        title_font=dict(size=13, color="#8a9bb5"),
-        tickfont=dict(size=11, color="#6a7f9a"),
+        gridcolor="#e2e8f0", gridwidth=1,
+        linecolor="#cbd5e1", tickcolor="#cbd5e1",
+        title_font=dict(size=13, color="#475569"),
+        tickfont=dict(size=11, color="#64748b"),
+        showgrid=True, zeroline=False,
     ),
     yaxis=dict(
-        gridcolor="#1a2a40", gridwidth=1,
-        linecolor="#1e3a5f", tickcolor="#1e3a5f",
-        title_font=dict(size=13, color="#8a9bb5"),
-        tickfont=dict(size=11, color="#6a7f9a"),
+        gridcolor="#e2e8f0", gridwidth=1,
+        linecolor="#cbd5e1", tickcolor="#cbd5e1",
+        title_font=dict(size=13, color="#475569"),
+        tickfont=dict(size=11, color="#64748b"),
+        showgrid=True, zeroline=False,
     ),
     legend=dict(
-        bgcolor="rgba(13,20,34,0.8)",
-        bordercolor="#1e3a5f",
+        bgcolor="rgba(255,255,255,0.9)",
+        bordercolor="#e2e8f0",
         borderwidth=1,
-        font=dict(size=12, color="#c8d0e0"),
-        title_font=dict(size=11, color="#5a7a9e"),
+        font=dict(size=12, color="#1e293b"),
+        title_font=dict(size=11, color="#64748b"),
     ),
-    margin=dict(l=60, r=20, t=40, b=60),
+    margin=dict(l=60, r=20, t=50, b=60),
     hovermode="x unified",
 )
 
 
-def save_figure_bytes(fig_plotly, fmt="png", scale=3):
-    """Export Plotly figure to bytes."""
-    if fmt == "svg":
+def save_figure_bytes(fig_plotly, fmt="png", dpi=300):
+    """Export Plotly figure to bytes. DPI is converted to scale factor (96 dpi base)."""
+    fmt = fmt.lower()
+    if fmt in ("tif", "tiff"):
+        # Plotly doesn't natively export TIFF — export PNG at high DPI then convert
+        scale = max(1, round(dpi / 96))
+        png_bytes = fig_plotly.to_image(format="png", scale=scale)
+        from PIL import Image
+        img = Image.open(io.BytesIO(png_bytes))
+        buf = io.BytesIO()
+        img.save(buf, format="TIFF", dpi=(dpi, dpi))
+        buf.seek(0)
+        return buf
+    elif fmt == "svg":
         buf = io.BytesIO(fig_plotly.to_image(format="svg"))
     elif fmt == "pdf":
         buf = io.BytesIO(fig_plotly.to_image(format="pdf"))
     else:
+        scale = max(1, round(dpi / 96))
         buf = io.BytesIO(fig_plotly.to_image(format=fmt, scale=scale))
     buf.seek(0)
     return buf
@@ -404,7 +388,7 @@ def get_download_mime(fmt: str) -> str:
 #  Header
 # ─────────────────────────────────────────────
 st.markdown("""
-<div style="padding: 28px 0 8px 0; border-bottom: 1px solid #1a2a40; margin-bottom: 24px;">
+<div style="padding: 28px 0 8px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 24px;">
     <div class="hero-title">🔬 Incucyte <span class="hero-accent">Timecourse</span> Plotter</div>
     <div class="hero-sub">Live-cell imaging analysis · Mean ± SEM/SD · Publication-ready export</div>
     <div style="margin-top:12px;">
@@ -423,7 +407,7 @@ st.markdown("""
 with st.sidebar:
     st.markdown("""
     <div style="font-family:'IBM Plex Mono',monospace; font-size:0.7rem; letter-spacing:0.15em;
-         text-transform:uppercase; color:#3b7bbf; border-bottom:1px solid #1a2a40;
+         text-transform:uppercase; color:#64748b; border-bottom:1px solid #e2e8f0;
          padding-bottom:6px; margin-bottom:16px;">
     ⚙ Plot Settings
     </div>
@@ -453,14 +437,42 @@ with st.sidebar:
 
     st.markdown("""
     <div style="font-family:'IBM Plex Mono',monospace; font-size:0.7rem; letter-spacing:0.15em;
-         text-transform:uppercase; color:#3b7bbf; margin-bottom:10px;">
+         text-transform:uppercase; color:#64748b; margin-bottom:10px;">
     📦 Export
     </div>
     """, unsafe_allow_html=True)
 
-    export_format = st.selectbox("Format", ["PNG", "PDF", "SVG"], index=0)
-    export_scale = st.select_slider("Resolution (raster)", options=[1, 2, 3, 4], value=3,
-                                     help="Scale factor for PNG. 3 ≈ 300 dpi at screen size.")
+    export_format = st.selectbox("Format", ["PNG", "PDF", "SVG", "TIFF"], index=0)
+    export_dpi = st.selectbox(
+        "Raster DPI",
+        [150, 300, 600, 1200],
+        index=1,
+        help="Applies to PNG and TIFF. PDF and SVG are vector (resolution-independent).",
+    )
+
+    st.markdown("---")
+    st.markdown("""
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:0.68rem; letter-spacing:0.15em;
+         text-transform:uppercase; color:#64748b; margin-bottom:10px;">
+    📐 Figure size
+    </div>
+    """, unsafe_allow_html=True)
+
+    figure_preset = st.selectbox(
+        "Preset",
+        ["Custom", "Screen", "Presentation", "Publication single-column", "Publication double-column"],
+        index=3,
+    )
+    preset_dims = {
+        "Custom": (8.0, 5.0),
+        "Screen": (8.0, 5.0),
+        "Presentation": (10.0, 6.0),
+        "Publication single-column": (3.35, 2.6),
+        "Publication double-column": (6.9, 4.8),
+    }
+    default_w, default_h = preset_dims[figure_preset]
+    fig_width  = st.number_input("Width (inches)",  min_value=2.0, max_value=20.0, value=float(default_w), step=0.1)
+    fig_height = st.number_input("Height (inches)", min_value=2.0, max_value=20.0, value=float(default_h), step=0.1)
 
 
 # ─────────────────────────────────────────────
@@ -526,7 +538,7 @@ if tidy is not None and not tidy.empty:
     with st.sidebar:
         st.markdown("""
         <div style="font-family:'IBM Plex Mono',monospace; font-size:0.7rem; letter-spacing:0.15em;
-             text-transform:uppercase; color:#3b7bbf; border-top:1px solid #1a2a40;
+             text-transform:uppercase; color:#64748b; border-top:1px solid #e2e8f0;
              padding-top:12px; margin-top:4px; margin-bottom:10px;">
         🎨 Groups
         </div>
@@ -637,30 +649,50 @@ if tidy is not None and not tidy.empty:
             **PLOTLY_LAYOUT,
             xaxis_title=x_label,
             yaxis_title=y_label,
-            title=dict(text=f"Mean{error_label} per group", font=dict(size=14, color="#8a9bb5"), x=0),
+            title=dict(text=f"Mean{error_label} per group", font=dict(size=14, color="#475569"), x=0),
             legend_title_text="Group",
         )
         st.plotly_chart(fig, use_container_width=True)
 
         # Download row
         fmt = export_format.lower()
-        dc1, dc2, dc3 = st.columns(3)
+        if fmt == "tiff":
+            fmt = "tif"
+        is_vector = fmt in ("pdf", "svg")
+        label_dpi = "vector" if is_vector else f"{export_dpi} dpi"
+
+        dc1, dc2, dc3, dc4 = st.columns(4)
         try:
             with dc1:
-                st.download_button("⬇ Download PNG (high-res)",
-                    data=save_figure_bytes(fig, "png", scale=export_scale),
-                    file_name="mean_plot.png", mime="image/png")
+                st.download_button(
+                    f"⬇ {export_format} ({label_dpi})",
+                    data=save_figure_bytes(fig, fmt, dpi=export_dpi),
+                    file_name=f"mean_plot.{fmt}",
+                    mime=get_download_mime(fmt),
+                )
             with dc2:
-                st.download_button("⬇ Download PDF (vector)",
-                    data=save_figure_bytes(fig, "pdf"),
-                    file_name="mean_plot.pdf", mime="application/pdf")
+                st.download_button(
+                    "⬇ PNG 300 dpi",
+                    data=save_figure_bytes(fig, "png", dpi=300),
+                    file_name="mean_plot_300dpi.png",
+                    mime="image/png",
+                )
             with dc3:
-                st.download_button("⬇ Download SVG (vector)",
-                    data=save_figure_bytes(fig, "svg"),
-                    file_name="mean_plot.svg", mime="image/svg+xml")
+                st.download_button(
+                    "⬇ PNG 600 dpi",
+                    data=save_figure_bytes(fig, "png", dpi=600),
+                    file_name="mean_plot_600dpi.png",
+                    mime="image/png",
+                )
+            with dc4:
+                st.download_button(
+                    "⬇ PDF (vector)",
+                    data=save_figure_bytes(fig, "pdf", dpi=export_dpi),
+                    file_name="mean_plot.pdf",
+                    mime="application/pdf",
+                )
         except Exception:
-            st.info("Install `kaleido` for static export: `pip install kaleido`")
-
+            pass
     # ─── TAB 2: Spaghetti ─────────────────────────────────────
     with tab2:
         fig2 = go.Figure()
@@ -689,21 +721,25 @@ if tidy is not None and not tidy.empty:
             **PLOTLY_LAYOUT,
             xaxis_title=x_label,
             yaxis_title=y_label,
-            title=dict(text="Individual replicates (spaghetti)", font=dict(size=14, color="#8a9bb5"), x=0),
+            title=dict(text="Individual replicates (spaghetti)", font=dict(size=14, color="#475569"), x=0),
             legend_title_text="Group",
         )
         st.plotly_chart(fig2, use_container_width=True)
 
         try:
-            dc1, dc2 = st.columns(2)
+            dc1, dc2, dc3 = st.columns(3)
             with dc1:
-                st.download_button("⬇ Download PNG",
-                    data=save_figure_bytes(fig2, "png", scale=export_scale),
-                    file_name="spaghetti_plot.png", mime="image/png")
+                st.download_button("⬇ PNG 300 dpi",
+                    data=save_figure_bytes(fig2, "png", dpi=300),
+                    file_name="spaghetti_300dpi.png", mime="image/png")
             with dc2:
-                st.download_button("⬇ Download SVG",
-                    data=save_figure_bytes(fig2, "svg"),
-                    file_name="spaghetti_plot.svg", mime="image/svg+xml")
+                st.download_button("⬇ PNG 600 dpi",
+                    data=save_figure_bytes(fig2, "png", dpi=600),
+                    file_name="spaghetti_600dpi.png", mime="image/png")
+            with dc3:
+                st.download_button("⬇ SVG (vector)",
+                    data=save_figure_bytes(fig2, "svg", dpi=export_dpi),
+                    file_name="spaghetti.svg", mime="image/svg+xml")
         except Exception:
             pass
 
@@ -740,8 +776,8 @@ if tidy is not None and not tidy.empty:
 
     # ── Footer ──
     st.markdown("""
-    <div style="margin-top:40px; padding-top:16px; border-top:1px solid #1a2a40;
-         font-family:'IBM Plex Mono',monospace; font-size:0.68rem; color:#2a4060;
+    <div style="margin-top:40px; padding-top:16px; border-top:1px solid #e2e8f0;
+         font-family:'IBM Plex Mono',monospace; font-size:0.68rem; color:#94a3b8;
          text-align:center; letter-spacing:0.08em;">
     INCUCYTE TIMECOURSE PLOTTER · Live-cell imaging analysis
     </div>
