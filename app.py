@@ -595,11 +595,13 @@ if tidy is not None and not tidy.empty:
         yaxis_extra["dtick"] = y_dtick
         yaxis_extra["tick0"] = 0
 
-    # ── Kaleido check (once) ──
+    # ── Kaleido check (once, does a real render test) ──
     try:
         import kaleido  # noqa
+        _test_fig = go.Figure(go.Scatter(x=[0], y=[0]))
+        _test_fig.to_image(format="png", scale=1)
         _kaleido_ok = True
-    except ImportError:
+    except Exception:
         _kaleido_ok = False
 
     stats = aggregate_stats(tidy, interval_hours=interval_hours)
