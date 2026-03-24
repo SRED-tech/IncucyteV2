@@ -5,8 +5,9 @@ Publication-grade, clean light theme.
 Uses Plotly for interactive figures + Streamlit wide layout.
 """
 
-import re
 import io
+import re
+
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -332,7 +333,7 @@ def make_color_list(n: int) -> list[str]:
 
 
 # ─────────────────────────────────────────────
-#  Plotly theme — cleaner for export
+#  Plotly theme — cleaner for export + Streamlit
 # ─────────────────────────────────────────────
 PLOTLY_LAYOUT = dict(
     paper_bgcolor="white",
@@ -370,14 +371,6 @@ PLOTLY_LAYOUT = dict(
         title_font=dict(size=15, color="#111827"),
         tickfont=dict(size=12, color="#374151"),
     ),
-    legend=dict(
-        bgcolor="rgba(255,255,255,0.92)",
-        bordercolor="#d1d5db",
-        borderwidth=1,
-        font=dict(size=12, color="#111827"),
-        title_font=dict(size=12, color="#374151"),
-    ),
-    margin=dict(l=70, r=25, t=60, b=70),
     hovermode="x unified",
 )
 
@@ -548,11 +541,11 @@ with st.sidebar:
     )
 
     preset_dims = {
-        "Custom": (8.0, 5.0),
-        "Screen": (8.0, 5.0),
-        "Presentation": (10.0, 6.0),
-        "Publication single-column": (3.35, 2.6),
-        "Publication double-column": (6.9, 4.8),
+        "Custom": (8.0, 5.5),
+        "Screen": (10.0, 6.0),
+        "Presentation": (11.0, 6.5),
+        "Publication single-column": (3.35, 2.8),
+        "Publication double-column": (6.9, 5.2),
     }
     default_w, default_h = preset_dims[figure_preset]
     fig_width = st.number_input("Width (inches)", min_value=2.0, max_value=20.0, value=float(default_w), step=0.1)
@@ -624,7 +617,6 @@ if input_mode == "📂  Upload file":
         <strong style="color:#00c9a7">Incucyte TXT</strong> export above to begin.
         </div>
         """, unsafe_allow_html=True)
-
 else:
     st.markdown('<p class="section-header">Manual data entry</p>', unsafe_allow_html=True)
     starter = pd.DataFrame({
@@ -687,10 +679,12 @@ if tidy is not None and not tidy.empty:
     try:
         import kaleido  # noqa: F401
         _test_fig = go.Figure(go.Scatter(x=[0], y=[0]))
-        _test_fig.to_image(format="png", scale=1)
+        _test_fig.to_image(format="png", width=400, height=300, scale=1)
         _kaleido_ok = True
-    except Exception:
+        _kaleido_error = None
+    except Exception as e:
         _kaleido_ok = False
+        _kaleido_error = str(e)
 
     stats = aggregate_stats(tidy, interval_hours=interval_hours)
     stats = stats.merge(group_df, on="group", how="left", validate="many_to_one")
@@ -728,7 +722,7 @@ if tidy is not None and not tidy.empty:
         "📊  Summary Stats",
     ])
 
-    # ─── TAB 1 ──────────────────────────────
+    # ─── TAB 1: Mean ± Error ───────────────────────────────────
     with tab1:
         fig = go.Figure()
 
@@ -790,14 +784,28 @@ if tidy is not None and not tidy.empty:
             ))
 
         error_label = f" ± {error_choice}" if error_col else ""
+        plot_height_px = max(int(fig_height * 96), 520)
+
         fig.update_layout(
             **PLOTLY_LAYOUT,
             xaxis_title=x_label,
             yaxis_title=y_label,
             title=dict(text=f"Mean{error_label} per group", font=dict(size=15, color="#374151"), x=0),
-            legend_title_text="Group",
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.28,
+                xanchor="left",
+                x=0,
+                bgcolor="rgba(255,255,255,0.92)",
+                bordercolor="#d1d5db",
+                borderwidth=1,
+                font=dict(size=12, color="#111827"),
+                title_text="",
+            ),
             width=int(fig_width * 96),
-            height=int(fig_height * 96),
+            height=plot_height_px,
+            margin=dict(l=70, r=25, t=60, b=150),
         )
         fig.update_xaxes(**xaxis_extra)
         fig.update_yaxes(**yaxis_extra)
@@ -806,13 +814,19 @@ if tidy is not None and not tidy.empty:
             fig,
             use_container_width=True,
             config={
+                "displaylogo": False,
                 "toImageButtonOptions": {
                     "format": "png",
                     "filename": "incucyte_mean_plot",
                     "height": int(fig_height * 300),
                     "width": int(fig_width * 300),
                     "scale": 1,
-                }
+                },
+                "modeBarButtonsToRemove": [
+                    "lasso2d",
+                    "select2d",
+                    "autoScale2d",
+                ],
             },
         )
 
@@ -823,10 +837,12 @@ if tidy is not None and not tidy.empty:
         label_dpi = "vector" if is_vector else f"{export_dpi} dpi"
 
         if not _kaleido_ok:
-            st.warning(
-                "⚠️ Static export unavailable — `kaleido` is not installed or not working. "
-                "Install `kaleido>=0.2.1` and redeploy."
+            st.info(
+                "Static export buttons are unavailable in this Streamlit deployment. "
+                "Use the camera icon in the chart toolbar to export a high-resolution PNG."
             )
+            with st.expander("Technical details"):
+                st.code(_kaleido_error or "Unknown Kaleido error")
         else:
             st.markdown("""
             <div style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;
@@ -868,7 +884,7 @@ if tidy is not None and not tidy.empty:
                     use_container_width=True,
                 )
 
-    # ─── TAB 2 ──────────────────────────────
+    # ─── TAB 2: Spaghetti ─────────────────────────────────────
     with tab2:
         fig2 = go.Figure()
         added_legend = set()
@@ -905,14 +921,28 @@ if tidy is not None and not tidy.empty:
                 ))
                 added_legend.add(name)
 
+        plot_height_px2 = max(int(fig_height * 96), 520)
+
         fig2.update_layout(
             **PLOTLY_LAYOUT,
             xaxis_title=x_label,
             yaxis_title=y_label,
             title=dict(text="Individual replicates (spaghetti)", font=dict(size=15, color="#374151"), x=0),
-            legend_title_text="Group",
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.28,
+                xanchor="left",
+                x=0,
+                bgcolor="rgba(255,255,255,0.92)",
+                bordercolor="#d1d5db",
+                borderwidth=1,
+                font=dict(size=12, color="#111827"),
+                title_text="",
+            ),
             width=int(fig_width * 96),
-            height=int(fig_height * 96),
+            height=plot_height_px2,
+            margin=dict(l=70, r=25, t=60, b=150),
         )
         fig2.update_xaxes(**xaxis_extra)
         fig2.update_yaxes(**yaxis_extra)
@@ -921,13 +951,19 @@ if tidy is not None and not tidy.empty:
             fig2,
             use_container_width=True,
             config={
+                "displaylogo": False,
                 "toImageButtonOptions": {
                     "format": "png",
                     "filename": "incucyte_spaghetti_plot",
                     "height": int(fig_height * 300),
                     "width": int(fig_width * 300),
                     "scale": 1,
-                }
+                },
+                "modeBarButtonsToRemove": [
+                    "lasso2d",
+                    "select2d",
+                    "autoScale2d",
+                ],
             },
         )
 
@@ -971,8 +1007,10 @@ if tidy is not None and not tidy.empty:
                     mime="image/svg+xml",
                     use_container_width=True,
                 )
+        else:
+            st.info("Use the camera icon in the chart toolbar to export the spaghetti plot as PNG.")
 
-    # ─── TAB 3 ──────────────────────────────
+    # ─── TAB 3: Raw data ──────────────────────────────────────
     with tab3:
         st.markdown('<p class="section-header">Parsed tidy data</p>', unsafe_allow_html=True)
         st.dataframe(tidy, use_container_width=True, height=400)
@@ -985,7 +1023,7 @@ if tidy is not None and not tidy.empty:
             mime="text/csv",
         )
 
-    # ─── TAB 4 ──────────────────────────────
+    # ─── TAB 4: Summary stats ─────────────────────────────────
     with tab4:
         st.markdown('<p class="section-header">Aggregated statistics</p>', unsafe_allow_html=True)
 
