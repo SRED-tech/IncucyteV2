@@ -314,7 +314,11 @@ PALETTE = [
     "#fca5a5", "#d8b4fe", "#fda4af", "#86efac", "#bfdbfe",
 ]
 
-def make_color_list(n: int):
+DASH_PATTERNS = ["solid", "dash", "dot", "dashdot", "longdash", "longdashdot"]
+
+def get_dash(i: int, use_dash: bool) -> str:
+    """Return dash pattern for group index i."""
+    return DASH_PATTERNS[i % len(DASH_PATTERNS)] if use_dash else "solid"
     repeats = (n + len(PALETTE) - 1) // len(PALETTE)
     return (PALETTE * repeats)[:n]
 
@@ -432,6 +436,14 @@ with st.sidebar:
 
     band_alpha = st.slider("Error band opacity", 0.05, 0.6, 0.18, 0.01)
     line_width = st.slider("Line width", 1.0, 5.0, 2.5, 0.5)
+    line_opacity = st.slider("Line opacity", 0.2, 1.0, 1.0, 0.05,
+                              help="Reduce to see overlapping lines through each other")
+
+    use_dash_patterns = st.checkbox("Distinct dash patterns per group", value=True,
+                                     help="Solid, dashed, dotted, dash-dot — helps distinguish overlapping lines")
+
+    show_markers = st.checkbox("Show data point markers", value=False)
+    marker_size  = st.slider("Marker size", 3, 12, 6, 1) if show_markers else 6
 
     st.markdown("---")
 
@@ -651,6 +663,8 @@ if tidy is not None and not tidy.empty:
                 sub = sub.iloc[::smooth_step]
             name = group_df.loc[group_df["group"] == g, "display_name"].values[0]
             color = group_df.loc[group_df["group"] == g, "color"].values[0]
+            dash = get_dash(i, use_dash_patterns)
+            r_c, g_c, b_c = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
 
             # Faint replicate lines
             if show_replicates:
@@ -659,19 +673,17 @@ if tidy is not None and not tidy.empty:
                     fig.add_trace(go.Scatter(
                         x=rsub["time"], y=rsub["value"],
                         mode="lines",
-                        line=dict(color=color, width=1),
-                        opacity=0.2,
+                        line=dict(color=color, width=1, dash=dash),
+                        opacity=0.18,
                         showlegend=False,
                         hoverinfo="skip",
                     ))
 
-            # Error band
+            # Error band — slightly transparent so overlapping bands show through
             if error_col and sub[error_col].notna().any():
                 y_upper = sub["mean"] + sub[error_col]
                 y_lower = sub["mean"] - sub[error_col]
-                # Convert hex to rgba for fill
-                r, g_v, b = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
-                fill_color = f"rgba({r},{g_v},{b},{band_alpha})"
+                fill_color = f"rgba({r_c},{g_c},{b_c},{band_alpha})"
                 fig.add_trace(go.Scatter(
                     x=pd.concat([sub["time"], sub["time"][::-1]]),
                     y=pd.concat([y_upper, y_lower[::-1]]),
@@ -683,12 +695,19 @@ if tidy is not None and not tidy.empty:
                     name=f"{name} band",
                 ))
 
-            # Mean line
+            # Mean line — dash pattern + optional markers + opacity
+            mode = "lines+markers" if show_markers else "lines"
             fig.add_trace(go.Scatter(
                 x=sub["time"], y=sub["mean"],
-                mode="lines",
+                mode=mode,
                 name=name,
-                line=dict(color=color, width=line_width),
+                opacity=line_opacity,
+                line=dict(color=color, width=line_width, dash=dash),
+                marker=dict(
+                    symbol="circle", size=marker_size,
+                    color=color,
+                    line=dict(color="white", width=1.5),
+                ) if show_markers else dict(size=0),
                 hovertemplate=f"<b>{name}</b><br>{x_label}: %{{x}}<br>{y_label}: %{{y:.2f}}<extra></extra>",
             ))
 
@@ -764,18 +783,26 @@ if tidy is not None and not tidy.empty:
         for i, g in enumerate(groups):
             name = group_df.loc[group_df["group"] == g, "display_name"].values[0]
             color = group_df.loc[group_df["group"] == g, "color"].values[0]
-            r, g_v, b = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
+            dash = get_dash(i, use_dash_patterns)
+            r_c, g_c, b_c = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
 
             for rep, rsub in tidy_m[tidy_m["group"] == g].groupby("replicate"):
                 rsub = rsub.sort_values("time")
                 show = name not in added_legend
+                mode = "lines+markers" if show_markers else "lines"
                 fig2.add_trace(go.Scatter(
                     x=rsub["time"], y=rsub["value"],
-                    mode="lines",
+                    mode=mode,
                     name=name,
                     legendgroup=name,
                     showlegend=show,
-                    line=dict(color=f"rgba({r},{g_v},{b},0.7)", width=1.8),
+                    opacity=line_opacity,
+                    line=dict(color=f"rgba({r_c},{g_c},{b_c},1)", width=1.8, dash=dash),
+                    marker=dict(
+                        symbol="circle", size=max(3, marker_size - 1),
+                        color=color,
+                        line=dict(color="white", width=1),
+                    ) if show_markers else dict(size=0),
                     hovertemplate=f"<b>{name}</b> [{rep}]<br>{x_label}: %{{x}}<br>{y_label}: %{{y:.2f}}<extra></extra>",
                 ))
                 added_legend.add(name)
